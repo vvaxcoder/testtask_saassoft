@@ -90,21 +90,21 @@ const { accounts } = storeToRefs(userStore);
 const labelInputs = ref<string[]>([]);
 const errors: Ref<Record<number, Record<string, string>>> = ref({});
 
-const addAccount = () => {
+const addAccount = (): void => {
   userStore.addAccount();
   labelInputs.value.push('');
 };
 
-const deleteAccount = (index: number) => {
+const deleteAccount = (index: number): void => {
   userStore.deleteAccount(index);
   labelInputs.value.splice(index, 1);
 };
 
-function updateAccount(index: number, data: Partial<Account>) {
+const updateAccount = (index: number, data: Partial<Account>): void => {
   userStore.updateAccount(index, data);
 }
 
-function onLabelBlur(index: number) {
+const onLabelBlur = (index: number): void => {
   const parsed = labelInputs.value[index]
     .split(';')
     .map((text) => ({ text: text.trim() }))
@@ -113,7 +113,7 @@ function onLabelBlur(index: number) {
   updateAccount(index, { labels: parsed });
 }
 
-function onTypeChange(index: number) {
+const onTypeChange = (index: number): void => {
   const account = accounts.value[index];
   const type = account.type;
   const password = type === 'LDAP' ? null : '';
@@ -121,7 +121,7 @@ function onTypeChange(index: number) {
   updateAccount(index, { type, password });
 }
 
-function validateField(index: number, field: string, value: string) {
+const validateField = (index: number, field: string, value: string): void => {
   if (!errors.value[index]) {
     errors.value[index] = {};
   }
