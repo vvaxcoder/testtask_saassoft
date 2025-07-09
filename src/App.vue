@@ -15,7 +15,8 @@
     <el-table 
         :data="accounts"
         height="400px"
-        class="no-row-borders">
+        class="no-row-borders"
+        :empty-text="emptyText">
       <el-table-column prop="labels" label="Метки">
         <template #default="{ $index }">
           <el-input
@@ -89,6 +90,7 @@ const { accounts } = storeToRefs(userStore);
 
 const labelInputs = ref<string[]>([]);
 const errors: Ref<Record<number, Record<string, string>>> = ref({});
+const emptyText = 'Нет данных';
 
 const addAccount = (): void => {
   userStore.addAccount();
