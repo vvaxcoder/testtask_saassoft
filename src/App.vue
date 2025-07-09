@@ -48,6 +48,7 @@
         <template #default="{ row, $index }">
           <el-input
             v-if="row.type === 'Local'"
+            type="password"
             v-model="row.password"
             placeholder="Пароль"
             show-password
