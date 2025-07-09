@@ -39,26 +39,30 @@
 
       <el-table-column prop="login" label="Логин">
         <template #default="{ row, $index }">
-          <el-input
-            v-model="row.login"
-            placeholder="Логин"
-            @blur="validateLogin($index)"
-            :error="errors[$index]"
-        />
+          <el-form-item :error="errors[$index]?.login" :show-message="true" class="w-100">
+            <el-input
+              v-model="row.login"
+              placeholder="Логин"
+              @blur="validateField($index, 'login', row.login)"
+              :error="errors[$index]"
+          />
+          </el-form-item>
         </template>
       </el-table-column>
 
       <el-table-column prop="password" label="Пароль">
         <template #default="{ row, $index }">
-          <el-input
-            v-if="row.type === 'Local'"
-            type="password"
-            v-model="row.password"
-            placeholder="Пароль"
-            show-password
-            @blur="validatePassword($index)"
-            :error="errors[$index]"
-          />
+          <el-form-item :error="errors[$index]?.password" :show-message="true" class="w-100">
+            <el-input
+              v-if="row.type === 'Local'"
+              type="password"
+              v-model="row.password"
+              placeholder="Пароль"
+              show-password
+              @blur="validateField($index, 'password', row.password)"
+              :error="errors[$index]"
+            />
+          </el-form-item>
         </template>
       </el-table-column>
 
@@ -84,7 +88,7 @@ userStore.loadFromStorage();
 const { accounts } = storeToRefs(userStore);
 
 const labelInputs = ref<string[]>([]);
-const errors: Ref<Record<number, string>> = ref({});
+const errors: Ref<Record<number, Record<string, string>>> = ref({});
 
 const addAccount = () => {
   userStore.addAccount();
@@ -117,22 +121,22 @@ function onTypeChange(index: number) {
   updateAccount(index, { type, password });
 }
 
-function validateLogin(index: number) {
-  const account = accounts.value[index];
-   const login = account.login;
-
-  if (!login || login.length > 100) {
-    errors.value[index] = 'Логин обязателен и должен быть меньше 100 символов.';
-  } else {
-    delete errors.value[index];
+function validateField(index: number, field: string, value: string) {
+  if (!errors.value[index]) {
+    errors.value[index] = {};
   }
-}
 
-function validatePassword(index: number) {
-  const account = accounts.value[index];
+  if (!value) {
+    errors.value[index][field] = `${field} не может быть пустым`;
+  } else if (field === 'login' && value.length > 100) {
+    errors.value[index][field] = 'Логин должен быть короче 100 символов';
+  } else {
+    delete errors.value[index][field];
 
-  if (account.type === 'Local' && (!account.password || account.password.length > 100)) {
-    alert('Пароль обязателен и должен быть меньше 100 символов.');
+    // Если все ошибки поля пустые — удалить всю запись
+    if (Object.keys(errors.value[index]).length === 0) {
+      delete errors.value[index];
+    }
   }
 }
 
