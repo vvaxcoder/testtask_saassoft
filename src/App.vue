@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useAccountsStore } from '@/stores/account';
+import { useAccountsStore, type Account } from '@/stores/account';
 import { Delete, Plus } from '@element-plus/icons-vue';
 
 const userStore = useAccountsStore();
@@ -86,7 +86,7 @@ function deleteAccount(index: number) {
   labelInputs.value.splice(index, 1);
 }
 
-function updateAccount(index: number, data: Partial<(typeof accounts)[number]>) {
+function updateAccount(index: number, data: Partial<Account>) {
   userStore.updateAccount(index, data);
 }
 
