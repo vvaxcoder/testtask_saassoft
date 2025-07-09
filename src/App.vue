@@ -19,8 +19,10 @@
       <el-table-column prop="labels" label="Метки">
         <template #default="{ $index }">
           <el-input
+            maxlength="50"
             v-model="labelInputs[$index]"
             placeholder="Метки через ;"
+            show-word-limit
             @blur="onLabelBlur($index)"
           />
         </template>
