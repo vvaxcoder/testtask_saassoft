@@ -12,9 +12,12 @@
       class="mb-4 custom-alert"
     />
 
-    <el-table :data="accounts" class="no-row-borders">
+    <el-table 
+        :data="accounts"
+        height="400px"
+        class="no-row-borders">
       <el-table-column prop="labels" label="Метки">
-        <template #default="{ row, $index }">
+        <template #default="{ $index }">
           <el-input
             v-model="labelInputs[$index]"
             placeholder="Метки через ;"
@@ -92,24 +95,30 @@ function onLabelBlur(index: number) {
     .split(';')
     .map((text) => ({ text: text.trim() }))
     .filter((x) => x.text);
+
   updateAccount(index, { labels: parsed });
 }
 
 function onTypeChange(index: number) {
-  const type = accounts[index].type;
+  const account = accounts.value[index];
+  const type = account.type;
   const password = type === 'LDAP' ? null : '';
+
   updateAccount(index, { type, password });
 }
 
 function validateLogin(index: number) {
-  const login = accounts[index].login;
+  const account = accounts.value[index];
+   const login = account.login;
+
   if (!login || login.length > 100) {
     alert('Логин обязателен и должен быть меньше 100 символов.');
   }
 }
 
 function validatePassword(index: number) {
-  const account = accounts[index];
+  const account = accounts.value[index];
+
   if (account.type === 'Local' && (!account.password || account.password.length > 100)) {
     alert('Пароль обязателен и должен быть меньше 100 символов.');
   }
