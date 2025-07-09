@@ -42,7 +42,9 @@
           <el-input
             v-model="row.login"
             placeholder="Логин"
-            @blur="validateLogin($index)" />
+            @blur="validateLogin($index)"
+            :error="errors[$index]"
+        />
         </template>
       </el-table-column>
 
@@ -55,6 +57,7 @@
             placeholder="Пароль"
             show-password
             @blur="validatePassword($index)"
+            :error="errors[$index]"
           />
         </template>
       </el-table-column>
@@ -81,6 +84,7 @@ userStore.loadFromStorage();
 const { accounts } = storeToRefs(userStore);
 
 const labelInputs = ref<string[]>([]);
+const errors = ref([]);
 
 const addAccount = () => {
   userStore.addAccount();
@@ -163,7 +167,7 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
-el-table {
+.el-table {
   width: 100%;
 }
 
