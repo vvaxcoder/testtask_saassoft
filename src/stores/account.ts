@@ -11,7 +11,7 @@ export interface Account {
   password: string | null;
 }
 
-export const useCounterStore = defineStore('account', {
+export const useAccountsStore = defineStore('account', {
   state: () => ({
     accounts: [] as Account[],
   }),
@@ -23,7 +23,7 @@ export const useCounterStore = defineStore('account', {
         login: '',
         password: '',
       });
-      
+
       this.saveToStorage();
     },
     deleteAccount(index: number) {

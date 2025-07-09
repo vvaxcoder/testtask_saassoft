@@ -1,47 +1,163 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="container">
+    <div class="header">
+      <h1>Учетные записи</h1>
+      <el-button type="primary" :icon="Plus" @click="addAccount" />
     </div>
-  </header>
 
-  <main>
-    <TheWelcome />
-  </main>
+    <el-alert
+      title="Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;"
+      type="info"
+      show-icon
+      class="mb-4 custom-alert"
+    />
+
+    <el-table :data="accounts" class="no-row-borders">
+      <el-table-column prop="labels" label="Метки">
+        <template #default="{ row, $index }">
+          <el-input
+            v-model="labelInputs[$index]"
+            placeholder="Метки через ;"
+            @blur="onLabelBlur($index)"
+          />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="type" label="Тип записи">
+        <template #default="{ row, $index }">
+          <el-select v-model="row.type" placeholder="Тип записи" @change="onTypeChange($index)">
+            <el-option label="LDAP" value="LDAP" />
+            <el-option label="Локальная" value="Local" />
+          </el-select>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="login" label="Логин">
+        <template #default="{ row, $index }">
+          <el-input v-model="row.login" placeholder="Логин" @blur="validateLogin($index)" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="password" label="Пароль">
+        <template #default="{ row, $index }">
+          <el-input
+            v-if="row.type === 'Local'"
+            v-model="row.password"
+            placeholder="Пароль"
+            show-password
+            @blur="validatePassword($index)"
+          />
+        </template>
+      </el-table-column>
+
+      <el-table-column label="">
+        <template #default="{ $index }">
+          <el-button link @click="deleteAccount($index)">
+            <el-icon><Delete /></el-icon>
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useAccountsStore } from '@/stores/account';
+import { Delete, Plus } from '@element-plus/icons-vue';
+
+const userStore = useAccountsStore();
+userStore.loadFromStorage();
+const { accounts } = storeToRefs(userStore);
+
+const labelInputs = ref<string[]>([]);
+
+function addAccount() {
+  userStore.addAccount();
+  labelInputs.value.push('');
+}
+
+function deleteAccount(index: number) {
+  userStore.deleteAccount(index);
+  labelInputs.value.splice(index, 1);
+}
+
+function updateAccount(index: number, data: Partial<(typeof accounts)[number]>) {
+  userStore.updateAccount(index, data);
+}
+
+function onLabelBlur(index: number) {
+  const parsed = labelInputs.value[index]
+    .split(';')
+    .map((text) => ({ text: text.trim() }))
+    .filter((x) => x.text);
+  updateAccount(index, { labels: parsed });
+}
+
+function onTypeChange(index: number) {
+  const type = accounts[index].type;
+  const password = type === 'LDAP' ? null : '';
+  updateAccount(index, { type, password });
+}
+
+function validateLogin(index: number) {
+  const login = accounts[index].login;
+  if (!login || login.length > 100) {
+    alert('Логин обязателен и должен быть меньше 100 символов.');
+  }
+}
+
+function validatePassword(index: number) {
+  const account = accounts[index];
+  if (account.type === 'Local' && (!account.password || account.password.length > 100)) {
+    alert('Пароль обязателен и должен быть меньше 100 символов.');
+  }
+}
+
+onMounted(() => {
+  userStore.loadFromStorage();
+
+  labelInputs.value = userStore.accounts.map((acc) => acc.labels.map((l) => l.text).join(';'));
+});
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
+.container {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  width: 100%;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+.mb-4 {
+  width: 100%;
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+  margin-bottom: 16px;
+}
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+el-table {
+  width: 100%;
+}
+
+.custom-alert span {
+  font-size: 11px;
+}
+
+.no-row-borders >>> .el-table__row {
+  border-top: none !important;
+  border-bottom: none !important;
 }
 </style>
