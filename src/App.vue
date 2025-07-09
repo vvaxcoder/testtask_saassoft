@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAccountsStore, type Account } from '@/stores/account';
 import { Delete, Plus } from '@element-plus/icons-vue';
@@ -84,7 +84,7 @@ userStore.loadFromStorage();
 const { accounts } = storeToRefs(userStore);
 
 const labelInputs = ref<string[]>([]);
-const errors = ref([]);
+const errors: Ref<Record<number, string>> = ref({});
 
 const addAccount = () => {
   userStore.addAccount();
@@ -122,7 +122,9 @@ function validateLogin(index: number) {
    const login = account.login;
 
   if (!login || login.length > 100) {
-    alert('Логин обязателен и должен быть меньше 100 символов.');
+    errors.value[index] = 'Логин обязателен и должен быть меньше 100 символов.';
+  } else {
+    delete errors.value[index];
   }
 }
 
@@ -182,5 +184,9 @@ onMounted(() => {
 
 .del-btn {
   width: 40px !important;
+}
+
+.el-form-item {
+  margin-bottom: 0px;
 }
 </style>
