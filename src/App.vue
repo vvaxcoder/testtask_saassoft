@@ -165,7 +165,7 @@ el-table {
   font-size: 11px;
 }
 
-.no-row-borders >>> .el-table__row {
+.no-row-borders :deep(.el-table__row) {
   border-top: none !important;
   border-bottom: none !important;
 }
