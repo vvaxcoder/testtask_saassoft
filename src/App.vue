@@ -37,11 +37,15 @@
 
       <el-table-column prop="login" label="Логин">
         <template #default="{ row, $index }">
-          <el-input v-model="row.login" placeholder="Логин" @blur="validateLogin($index)" />
+          <el-input
+            v-model="row.login"
+            placeholder="Логин"
+            :style="{ width: row.type === 'LDAP' && !showPasswordColumn ? '100%' : '148px' }"
+            @blur="validateLogin($index)" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="password" label="Пароль">
+      <el-table-column prop="password" v-if="showPasswordColumn" label="Пароль">
         <template #default="{ row, $index }">
           <el-input
             v-if="row.type === 'Local'"
@@ -53,7 +57,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="">
+      <el-table-column label="" width="50" align="right">
         <template #default="{ $index }">
           <el-button link @click="deleteAccount($index)">
             <el-icon><Delete /></el-icon>
@@ -65,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAccountsStore, type Account } from '@/stores/account';
 import { Delete, Plus } from '@element-plus/icons-vue';
@@ -124,6 +128,8 @@ function validatePassword(index: number) {
   }
 }
 
+const showPasswordColumn = computed(() => accounts.value.some((acc) => acc.type === 'Local'));
+
 onMounted(() => {
   userStore.loadFromStorage();
 
@@ -168,5 +174,9 @@ el-table {
 .no-row-borders :deep(.el-table__row) {
   border-top: none !important;
   border-bottom: none !important;
+}
+
+.del-btn {
+  width: 40px !important;
 }
 </style>
